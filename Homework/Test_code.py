@@ -1,5 +1,18 @@
 import datetime as dt
 
+def get_week_stats():
+    now = dt.datetime.now()
+    day = now - dt.timedelta(days=7)
+    while day <= now:
+        return(day.date())
+        day += dt.timedelta(days=1)
+        
+
+print(get_week_stats())
+
+
+'''import datetime as dt
+
 
 # Создать класс под объект Record cо свойствами amount, comment, date.
 # Если дата не задана явно, указать текущее время.
@@ -8,17 +21,16 @@ class Record:
     def __init__(self, amount, comment, date=None):
         self.amount = amount
         self.comment = comment
-        self.date = self.date_transform(date)
+        if date is None:
+            self.date = self.now()
+        else:
+            self.date = date
 
     # Задать метод для запроса текущей даты в нужном формате
-    def date_transform(self, date=None):
-        if date is None:
-            now = dt.datetime.now()
-            return(now.date())
-        else:
-            date_format = '%d.%m.%Y'
-            moment = dt.datetime.strptime(date, date_format)
-            return(moment.date())
+    def now(self):
+        today = dt.datetime.strptime(
+            str(dt.datetime.now()), '%Y-%m-%d %H:%M:%S.%f')
+        return dt.datetime.strftime(today, '%d-%m-%Y')
 
 
 # Создать родительский класс Calculator с пустым списком records и
@@ -41,21 +53,6 @@ class Calculator():
                 total_amount += i.amount
         return(total_amount)
 
-    # Добавить метод для расчёта суммы amount в течение дня
-    def get_today_stats(self):
-        now = dt.datetime.now()
-        return(self.date_amount(now.date()))
-
-    # Добавить метод для расчёта суммы amount в течение недели
-    def get_week_stats(self):
-        now = dt.datetime.now()
-        day = now - dt.timedelta(days=7)
-        count = 0
-        while day <= now:
-            count += self.date_amount(day.date())
-            day += dt.timedelta(days=1)
-        return(count)
-
 
 # создать дочерний класс CashCalculator со свойствоами limit и carrency
 class CashCalculator(Calculator):
@@ -63,22 +60,29 @@ class CashCalculator(Calculator):
     USD_RATE = 74
     EUR_RATE = 90
 
-    # Добавить метод для расчёта баланса и конвертации в различные валюты
+    # Добавить метод для расчёта остатка на балансе
+    def get_today_stats(self):
+        today = dt.datetime.strptime(
+            str(dt.datetime.now()), '%Y-%m-%d %H:%M:%S.%f')
+        return(super().date_amount(dt.datetime.strftime(today, '%d-%m-%Y')))
+
+    # Добавить метод для конвертации баланса в различные валюты
     def exchange(self, currency):
-        balance = abs(self.limit - super().get_today_stats())
-        if currency == 'eur':
-            exchange = round(balance / self.EUR_RATE, 2)
-            return(f'{exchange} евро')
+        balance = abs(self.limit - self.get_today_stats())
+        if currency == 'rub':
+            exchange = f'{balance} руб'
+            return(exchange)
+        elif currency == 'eur':
+            exchange = f'{round(balance / self.EUR_RATE, 2)} евро'
+            return(exchange)
         elif currency == 'usd':
-            exchange = round(balance / self.USD_RATE, 2)
-            return(f'{exchange} долл')
-        else:
-            return(f'{balance} руб')
+            exchange = f'{round(balance / self.USD_RATE, 2)} долл'
+            return(exchange)
 
     # Добавить метод для оповещения пользователя о балансе
     def get_today_cash_remained(self, currency):
         exchange = self.exchange(currency)
-        expenses = super().get_today_stats()
+        expenses = self.get_today_stats()
         if (
                 currency == 'eur'
                 or currency == 'usd'
@@ -87,20 +91,26 @@ class CashCalculator(Calculator):
                 return(f'На сегодня осталось {exchange}')
             elif expenses == self.limit:
                 return('Денег нет, держись')
-            else:
+            elif expenses > self.limit:
                 return(f'Денег нет, держись: твой долг - {exchange}')
         else:
             return(
-                f'Прости, я пока не умею считать в {currency}. Лучше '
+                f'Прости, я пока не умею считать в {currency}. Лучше'
                 'спроси про рубли (rub), евро (eur) или доллары (usd).')
 
+#    def get_week_stats():
 
 # Добавить дочерний класс CaloriesCalculator для Calculator
 class CaloriesCalculator(Calculator):
 
-    # Добавить метод для информирования об оставшихся каллориях
+    # Добавить метод для расчёта остатка на балансе
+    def get_today_stats(self):
+        today = dt.datetime.strptime(
+            str(dt.datetime.now()), '%Y-%m-%d %H:%M:%S.%f')
+        return(super().date_amount(dt.datetime.strftime(today, '%d-%m-%Y')))
+
     def get_calories_remained(self):
-        eated = super().get_today_stats()
+        eated = self.get_today_stats()
         balance = self.limit - eated
         if eated < self.limit:
             return(
@@ -108,6 +118,8 @@ class CaloriesCalculator(Calculator):
                 f'калорийностью не более {balance} кКал')
         else:
             return('Хватит есть!')
+
+#    def get_week_stats():
 
 
 # Cоздадим калькулятор денег с дневным лимитом 1000
@@ -124,6 +136,6 @@ cash_calculator.add_record(Record(
                                   comment='бар в Танин др',
                                   date='08.11.2019'))
 print(cash_calculator.get_today_cash_remained('rub'))
-print(cash_calculator.get_week_stats)
 # Должно напечататься
 # На сегодня осталось 555 руб
+'''

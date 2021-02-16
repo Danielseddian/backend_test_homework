@@ -124,6 +124,5 @@ cash_calculator.add_record(Record(
                                   comment='бар в Танин др',
                                   date='08.11.2019'))
 print(cash_calculator.get_today_cash_remained('rub'))
-print(cash_calculator.get_week_stats)
 # Должно напечататься
 # На сегодня осталось 555 руб
