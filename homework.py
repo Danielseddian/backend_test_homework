@@ -52,15 +52,15 @@ class CashCalculator(Calculator):
     def get_today_cash_remained(self, currency):
         if currency not in self.CURRENCY:
             raise ValueError(self.ANSWER_0.format(currency=currency))
-        balance = round(((self.limit - self.get_today_stats())
-                         / self.EXCHANGE[currency]), 2)
+        balance = self.limit - self.get_today_stats()
+        exchange = round(balance / self.EXCHANGE[currency], 2)
         string_currency = self.CURRENCY[currency]
         if balance > 0:
-            return self.ANSWER_1.format(balance=balance,
+            return self.ANSWER_1.format(balance=exchange,
                                         string_currency=string_currency)
         elif balance == 0:
             return self.ANSWER_2
-        return self.ANSWER_3.format(balance=abs(balance),
+        return self.ANSWER_3.format(balance=abs(exchange),
                                     string_currency=string_currency)
 
 
