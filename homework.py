@@ -63,7 +63,7 @@ class CashCalculator(Calculator):
 
 class CaloriesCalculator(Calculator):
     LOW_CALORIES = ('Сегодня можно съесть что-нибудь ещё, но с общей'
-                     ' калорийностью не более {balance} кКал')
+                    ' калорийностью не более {balance} кКал')
     LOT_CALORIES = 'Хватит есть!'
 
     # Оповещение пользователя о каллориях за день
