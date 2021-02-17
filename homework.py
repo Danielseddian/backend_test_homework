@@ -17,33 +17,35 @@ class Calculator():
     def __init__(self, limit):
         self.limit = limit
         self.records = []
-        self.today = dt.date.today()
 
     def add_record(self, record):
         self.records.append(record)
 
     # Метод для расчёта суммы amount в течение дня
     def get_today_stats(self):
+        today = dt.date.today()
         return sum(record.amount for record in self.records
-                   if record.date == self.today)
+                   if record.date == today)
 
     # Метод для расчёта суммы amount в течение недели
     def get_week_stats(self):
+        today = dt.date.today()
+        last_week = today - self.WEEK_AGO
         return sum(record.amount for record in self.records
-                   if record.date > self.today - self.WEEK_AGO
-                   and record.date <= self.today)
+                   if last_week < record.date <= today)
 
 
 class CashCalculator(Calculator):
     EURO_RATE = 70.00
     USD_RATE = 60.00
     RUB_RATE = 1
-    CURRENCYS = {'rub': [RUB_RATE, 'руб'], 'eur': [EURO_RATE, 'Euro'],
+    CURRENCYS = {'rub': [RUB_RATE, 'руб'],
+                 'eur': [EURO_RATE, 'Euro'],
                  'usd': [USD_RATE, 'USD']}
-    ERROR_WARNING = 'Не удаётся посчитать в {currency}'
-    POS_BALANCE = 'На сегодня осталось {balance} {string_currency}'
-    ZERO_BALANCE = 'Денег нет, держись'
-    NEG_BALANCE = 'Денег нет, держись: твой долг - {balance} {string_currency}'
+    ERROR_WARNING = 'Не удаётся посчитать в {show_currency}'
+    POSITIV = 'На сегодня осталось {balance} {show_currency}'
+    ZERO = 'Денег нет, держись'
+    NEGATIV = 'Денег нет, держись: твой долг - {balance} {show_currency}'
 
     # Оповещение пользователя об остатке денежных средств
     def get_today_cash_remained(self, currency):
@@ -51,27 +53,27 @@ class CashCalculator(Calculator):
             raise ValueError(self.ERROR_WARNING.format(currency=currency))
         balance = self.limit - self.get_today_stats()
         if balance == 0:
-            return self.ZERO_BALANCE
-        exchange = round(balance / self.CURRENCYS[currency][0], 2)
-        string_currency = self.CURRENCYS[currency][1]
+            return self.ZERO
+        change, show_currency = self.CURRENCYS[currency]
+        exchange = round(balance / change, 2)
         if balance > 0:
-            return self.POS_BALANCE.format(balance=exchange,
-                                           string_currency=string_currency)
-        return self.NEG_BALANCE.format(balance=abs(exchange),
-                                       string_currency=string_currency)
+            return self.POSITIV.format(balance=exchange,
+                                       show_currency=show_currency)
+        return self.NEGATIV.format(balance=abs(exchange),
+                                   show_currency=show_currency)
 
 
 class CaloriesCalculator(Calculator):
-    LOW_CALORIES = ('Сегодня можно съесть что-нибудь ещё, но с общей'
-                    ' калорийностью не более {balance} кКал')
-    LOT_CALORIES = 'Хватит есть!'
+    TOO_LOW = ('Сегодня можно съесть что-нибудь ещё, но с общей'
+               ' калорийностью не более {balance} кКал')
+    A_LOT_OF = 'Хватит есть!'
 
     # Оповещение пользователя о каллориях за день
     def get_calories_remained(self):
         balance = self.limit - self.get_today_stats()
         if balance > 0:
-            return self.LOW_CALORIES.format(balance=balance)
-        return self.LOT_CALORIES
+            return self.TOO_LOW.format(balance=balance)
+        return self.A_LOT_OF
 
 
 if __name__ == '__main__':
